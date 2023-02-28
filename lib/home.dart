@@ -1,7 +1,6 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
+
+import 'connection.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -15,31 +14,6 @@ class _HomeScreenState extends State<HomeScreen> {
   TextEditingController email = TextEditingController();
   TextEditingController phone = TextEditingController();
 
-  Future<void> sendData() async {
-    var data = {
-      'name': name.text,
-      'email': email.text,
-      'phone': phone.text.toString()
-    };
-    var postResponse = await post(
-        Uri.parse('http://192.168.1.14/testApp/create.php'),
-        body: data);
-    return jsonDecode(postResponse.body);
-  }
-
-  Future<dynamic> getData() async {
-    var getResponse =
-        await get(Uri.parse('http://192.168.1.14/testApp/read.php'));
-    return jsonDecode(getResponse.body);
-  }
-
-  Future<void> deleteData(id) async {
-    var deleteResponse = await post(
-        Uri.parse('http://192.168.1.14/testApp/delete.php'),
-        body: {'id': id});
-    return jsonDecode(deleteResponse.body);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,33 +24,35 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           Expanded(
               child: FutureBuilder(
-            future: getData(),
+            future: Connection().getData(),
             builder: (context, snapshot) {
-              if(snapshot.hasData){
+              if (snapshot.data[0]['name'] == null) {
+                return const Center(child: Text('Empty'));
+              } else {
                 return ListView.builder(
-                  itemCount: snapshot.data!.length,
-                  itemBuilder: (context, index) {
-                    return Card(
-                        child: ListTile(
-                          title: Text(snapshot.data[index]['name']),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(snapshot.data[index]['phone']),
-                              Text(snapshot.data[index]['email']),
-                            ],
-                          ),
-                          trailing: IconButton(
-                              onPressed: () {
-                                deleteData(snapshot.data[index]['id']);
-                                setState(() {});
-                              },
-                              icon: Icon(Icons.delete)),
-                        ));
-                  });
-              }
-              else{
-                return Text('Empty');
+                    itemCount: snapshot.data.length,
+                    itemBuilder: (context, index) {
+                      return Card(
+                          child: ListTile(
+                        leading: IconButton(
+                            onPressed: () {}, icon: const Icon(Icons.edit)),
+                        title: Text(snapshot.data[index]['name']),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(snapshot.data[index]['phone']),
+                            Text(snapshot.data[index]['email']),
+                          ],
+                        ),
+                        trailing: IconButton(
+                            onPressed: () {
+                              Connection()
+                                  .deleteData(snapshot.data[index]['id']);
+                              setState(() {});
+                            },
+                            icon: const Icon(Icons.delete)),
+                      ));
+                    });
               }
             },
           )),
@@ -118,7 +94,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         phone.text == "") {
                       return;
                     } else {
-                      sendData();
+                      Connection().sendData(name.text, email.text, phone.text);
                       setState(() {
                         name.text = "";
                         email.text = "";
