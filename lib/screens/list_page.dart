@@ -16,9 +16,31 @@ class _ListPageVIewState extends State<ListPageVIew> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Xampp'),
+        actions: [
+          IconButton(
+              onPressed: () {
+                Connection().truncateTable();
+                setState(() {});
+              },
+              icon: Icon(Icons.delete_forever))
+        ],
       ),
-      floatingActionButton:
-          FloatingActionButton(child: Icon(Icons.add), onPressed: () {}),
+      floatingActionButton: FloatingActionButton(
+          child: Icon(Icons.add),
+          onPressed: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => UserForm(
+                          isNew: true,
+                          userName: '',
+                          userEmail: '',
+                          userPhone: '',
+                          id: null,
+                        ))).then((value) {
+              setState(() {});
+            });
+          }),
       body: Column(
         children: [
           Expanded(
@@ -26,7 +48,8 @@ class _ListPageVIewState extends State<ListPageVIew> {
             future: Connection().getData(),
             builder: (context, snapshot) {
               if (snapshot.data == null) {
-                return const CircularProgressIndicator();
+                // return const Center(child: Text('Empty'));
+                return Center(child: const CircularProgressIndicator());
               }
               if (snapshot.data[0]['name'] == null) {
                 return const Center(child: Text('Empty'));
@@ -39,10 +62,18 @@ class _ListPageVIewState extends State<ListPageVIew> {
                         leading: IconButton(
                             onPressed: () {
                               Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => UserForm()))
-                                  .then((value) {
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => UserForm(
+                                            isNew: false,
+                                            userName: snapshot.data[index]
+                                                ['name'],
+                                            userEmail: snapshot.data[index]
+                                                ['email'],
+                                            userPhone: snapshot.data[index]
+                                                ['phone'],
+                                            id: snapshot.data[index]['id'],
+                                          ))).then((value) {
                                 setState(() {});
                               });
                             },

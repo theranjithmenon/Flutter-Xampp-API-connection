@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart';
 
 class Connection {
-  String ipData = '192.168.31.77';
+  String ipData = '192.168.37.77';
 
   Future<void> sendData(name, email, phone) async {
     var data = {'name': name, 'email': email, 'phone': phone};
@@ -28,6 +28,12 @@ class Connection {
     var data = {'name': name, 'email': email, 'phone': phone, 'id': id};
     var postResponse =
         await post(Uri.parse('http://$ipData/testApp/update.php'), body: data);
+    return jsonDecode(postResponse.body);
+  }
+
+  Future<void> truncateTable()async {
+    var postResponse =
+        await post(Uri.parse('http://$ipData/testApp/truncate.php'));
     return jsonDecode(postResponse.body);
   }
 }

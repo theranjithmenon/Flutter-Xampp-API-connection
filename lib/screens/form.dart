@@ -2,29 +2,38 @@ import 'package:flutter/material.dart';
 
 import '../connection.dart';
 
-class UserForm extends StatefulWidget {
-  UserForm({
-    Key? key,
-  }) : super(key: key);
+class UserForm extends StatelessWidget {
+  UserForm(
+      {Key? key,
+      required this.isNew,
+      required this.userName,
+      required this.userEmail,
+      required this.userPhone,
+      required this.id})
+      : super(key: key);
+  bool isNew;
+  String userName;
+  String userEmail;
+  String userPhone;
+  var id;
 
-  @override
-  State<UserForm> createState() => _UserFormState();
-}
-
-class _UserFormState extends State<UserForm> {
   @override
   Widget build(BuildContext context) {
     TextEditingController name = TextEditingController();
     TextEditingController email = TextEditingController();
     TextEditingController phone = TextEditingController();
+    if (!isNew) {
+      name.text = userName;
+      email.text = userEmail;
+      phone.text = userPhone;
+    }
     return Scaffold(
       appBar: AppBar(),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(name.text),
             const Spacer(),
             TextField(
               controller: name,
@@ -52,11 +61,15 @@ class _UserFormState extends State<UserForm> {
                 if (name.text == "" || email.text == "" || phone.text == "") {
                   return;
                 } else {
-                  Connection().sendData(name.text, email.text, phone.text);
+                  if(isNew){
+                    Connection().sendData(name.text, email.text, phone.text);
+                  }else{
+                    Connection().updateData(name.text, email.text, phone.text, id);
+                  }
                   Navigator.pop(context);
                 }
               },
-              child: const Text('Add'),
+              child: Text((isNew) ? 'Add' : 'Update'),
             )
           ],
         ),
