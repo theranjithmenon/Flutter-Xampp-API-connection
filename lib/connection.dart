@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart';
 
 class Connection {
-  String ipData = '192.168.37.77';
+  String ipData = 'YOUR IP HERE';
 
   Future<void> sendData(name, email, phone) async {
     var data = {'name': name, 'email': email, 'phone': phone};
